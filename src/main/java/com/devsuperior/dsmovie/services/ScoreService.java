@@ -24,34 +24,35 @@ public class ScoreService {
 	
 	@Autowired
 	private ScoreRepository scoreRepository;
-	
+
+
 	@Transactional
 	public MovieDTO saveScore(ScoreDTO dto) {
-		
+
 		UserEntity user = userService.authenticated();
-		
+
 		MovieEntity movie = movieRepository.findById(dto.getMovieId())
-				.orElseThrow(() -> new ResourceNotFoundException("Recurso não encontrado"));		
-		
+				.orElseThrow(() -> new ResourceNotFoundException("Recurso não encontrado"));
+
 		ScoreEntity score = new ScoreEntity();
 		score.setMovie(movie);
 		score.setUser(user);
 		score.setValue(dto.getScore());
-		
+
 		score = scoreRepository.saveAndFlush(score);
-		
+
 		double sum = 0.0;
 		for (ScoreEntity s : movie.getScores()) {
 			sum = sum + s.getValue();
 		}
-			
+
 		double avg = sum / movie.getScores().size();
-		
+
 		movie.setScore(avg);
 		movie.setCount(movie.getScores().size());
-		
+
 		movie = movieRepository.save(movie);
-		
+
 		return new MovieDTO(movie);
 	}
 }
